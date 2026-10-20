@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Достаточно ли йода в вашем питании?</title>
+<style>
+  :root{
+    --bg1:#e9f3ef; --bg2:#f5f8fb;
+    --card:#ffffff; --ink:#1c2b3a; --muted:#627183; --line:#e2eaf1;
+    --accent:#0e7c6b; --accent2:#0a5f52; --accent-soft:#e6f3ee;
+    --low1:#109a85; --low2:#0b6b5d;
+    --mid1:#d99a26; --mid2:#a86a08;
+    --high1:#d6544a; --high2:#a93226;
+    --ring:0 0 0 4px rgba(14,124,107,.14);
+    --shadow:0 12px 32px rgba(18,60,52,.10), 0 2px 6px rgba(18,60,52,.06);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; color:var(--ink);
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+    background:
+      radial-gradient(900px 420px at 15% -5%, #d8ece5 0%, transparent 60%),
+      radial-gradient(800px 380px at 95% 0%, #dcebf7 0%, transparent 55%),
+      linear-gradient(180deg, var(--bg1), var(--bg2) 55%, #eef3f6);
+    min-height:100vh;
+  }
+  .wrap{max-width:720px; margin:0 auto; padding:32px 16px 72px}
+  .topbar{display:flex; align-items:center; gap:10px; margin:0 4px 14px; color:var(--accent2); font-size:13px; font-weight:600; letter-spacing:.02em}
+  .topbar .dot{width:10px; height:10px; border-radius:50%; background:linear-gradient(135deg,var(--low1),var(--accent2)); box-shadow:0 0 0 5px rgba(14,124,107,.12)}
+  .card{
+    background:var(--card); border:1px solid rgba(226,234,241,.9);
+    border-radius:22px; padding:32px 30px; box-shadow:var(--shadow);
+    animation:rise .35s ease;
+  }
+  @keyframes rise{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
+  h1{margin:0 0 12px; font-size:clamp(24px,3.6vw,30px); line-height:1.2; letter-spacing:-.01em}
+  p.lead{color:#35465a; line-height:1.7; margin:0 0 18px; font-size:15.5px}
+  .meta{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px}
+  .pill{display:inline-flex; align-items:center; gap:7px; background:var(--accent-soft); color:var(--accent2);
+    border:1px solid #cfe6dd; border-radius:999px; padding:7px 13px; font-size:13px; font-weight:600}
+  .pill.plain{background:#eef3f7; border-color:var(--line); color:#44566b}
+  .btn{
+    appearance:none; border:0; border-radius:14px; padding:15px 22px; font-size:16px; font-weight:700;
+    background:linear-gradient(135deg,var(--low1),var(--accent2)); color:#fff; width:100%;
+    box-shadow:0 10px 20px rgba(14,124,107,.25); transition:transform .12s ease, box-shadow .2s, filter .2s;
+  }
+  .btn:hover{filter:brightness(1.04); box-shadow:0 12px 24px rgba(14,124,107,.3); transform:translateY(-1px)}
+  .btn:active{transform:translateY(0)}
+  .btn:focus-visible{outline:none; box-shadow:var(--ring)}
+  .btn-ghost{background:#edf2f7; color:#26394e; box-shadow:none; border:1px solid var(--line)}
+  .btn-ghost:hover{background:#e3ebf2; box-shadow:none}
+  /* форма */
+  .form-head{margin:0 0 6px}
+  .form-head h2{margin:0 0 4px; font-size:19px}
+  .progress{height:10px; background:#e6edf3; border-radius:999px; overflow:hidden; margin:12px 0 20px; border:1px solid #dbe4ec}
+  .progress>div{height:100%; width:0; border-radius:999px;
+    background:linear-gradient(90deg,var(--low1),var(--accent2)); transition:width .3s ease}
+  .q{margin:0 0 14px; padding:20px 18px; border:1.5px solid var(--line); border-radius:16px; background:#fff; transition:border-color .15s, box-shadow .15s}
+  .q:focus-within{border-color:var(--accent); box-shadow:var(--ring)}
+  .q h3{margin:0 0 12px; font-size:15.5px; line-height:1.45; display:flex; align-items:flex-start; gap:10px}
+  .q h3 span.n{flex:0 0 auto; display:inline-flex; width:28px; height:28px; align-items:center; justify-content:center;
+    background:var(--accent-soft); color:var(--accent2); border:1px solid #cfe6dd; border-radius:50%; font-size:13px; font-weight:800}
+  label.opt{
+    display:flex; align-items:center; gap:11px; padding:12px 14px; margin:9px 0;
+    border:1.5px solid #dde6ee; border-radius:13px; cursor:pointer; line-height:1.45; font-size:15px;
+    background:#fbfdff; transition:border-color .15s, background .15s, box-shadow .15s, transform .1s;
+  }
+  label.opt:hover{border-color:#9cc9bd; background:#f3faf7}
+  label.opt.checked{border-color:var(--accent); background:#ecf7f3; box-shadow:0 2px 10px rgba(14,124,107,.12)}
+  label.opt input{width:19px; height:19px; margin:0; accent-color:var(--accent); flex:0 0 auto; cursor:pointer}
+  .search, select.region{
+    width:100%; padding:13px 14px; font-size:15px; color:var(--ink);
+    border:1.5px solid #ccd8e2; border-radius:13px; background:#fbfdff; outline:none;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  .search{margin-bottom:10px}
+  .search:focus, select.region:focus{border-color:var(--accent); box-shadow:var(--ring); background:#fff}
+  select.region{cursor:pointer}
+  select.region option{padding:8px}
+  /* выпадающий список регионов */
+  .dd{position:relative}
+  .dd-btn{width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:13px 14px; font-size:15px; color:var(--ink); background:#fbfdff;
+    border:1.5px solid #ccd8e2; border-radius:13px; cursor:pointer; text-align:left;
+    transition:border-color .15s, box-shadow .15s}
+  .dd-btn:hover{border-color:#9cc9bd}
+  .dd-btn.open{border-color:var(--accent); box-shadow:var(--ring); background:#fff}
+  .dd-btn .ph{color:#8a99ab}
+  .dd-btn .arrow{color:var(--accent2); font-size:13px; flex:0 0 auto; transition:transform .18s}
+  .dd-btn.open .arrow{transform:rotate(180deg)}
+  .dd-panel{position:absolute; left:0; right:0; top:calc(100% + 8px); z-index:30;
+    background:#fff; border:1.5px solid #ccd8e2; border-radius:14px; box-shadow:var(--shadow);
+    padding:10px; animation:rise .18s ease}
+  .dd-panel .search{margin-bottom:8px}
+  .dd-list{max-height:260px; overflow:auto; display:grid; gap:2px; padding-right:2px}
+  .dd-opt{text-align:left; background:transparent; border:0; border-radius:10px;
+    padding:10px 12px; font-size:14.5px; line-height:1.4; cursor:pointer; color:var(--ink)}
+  .dd-opt:hover{background:#eef6f3}
+  .dd-opt.sel{background:#ecf7f3; font-weight:700; color:var(--accent2)}
+  .dd-empty{padding:10px 12px; font-size:13.5px; color:var(--muted); display:none}
+  .err{display:none; margin:4px 2px 0; color:var(--high2); background:#fdf0ef; border:1px solid #f3c5c1;
+    font-size:13.5px; border-radius:12px; padding:10px 13px}
+  .nav{display:flex; gap:10px; margin-top:16px}
+  .nav .btn{width:auto; flex:1}
+  /* результат */
+  .result-cat{border-radius:18px; padding:22px 22px 20px; margin-bottom:14px; color:#fff; border:0;
+    box-shadow:0 12px 26px rgba(20,40,35,.18); position:relative; overflow:hidden}
+  .result-cat::after{content:""; position:absolute; inset:0;
+    background:radial-gradient(420px 160px at 90% -20%, rgba(255,255,255,.28), transparent 60%); pointer-events:none}
+  .result-cat.low{background:linear-gradient(135deg,var(--low1),var(--low2))}
+  .result-cat.mid{background:linear-gradient(135deg,var(--mid1),var(--mid2))}
+  .result-cat.high{background:linear-gradient(135deg,var(--high1),var(--high2))}
+  .result-cat h2{margin:0 0 8px; font-size:19px; line-height:1.4; position:relative}
+  .result-cat div:last-child{position:relative; line-height:1.65; font-size:15px; opacity:.97}
+  .block{background:#f7fafc; border:1px solid var(--line); border-radius:16px; padding:18px; margin:12px 0; line-height:1.7; font-size:15px}
+  .block h4{margin:0 0 8px; font-size:12.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--accent2);
+    display:flex; align-items:center; gap:8px}
+  .block h4::before{content:""; width:8px; height:8px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 4px var(--accent-soft)}
+  ul.rec{margin:10px 0 2px; padding-left:2px; list-style:none; display:grid; gap:10px}
+  ul.rec li{background:#fff; border:1px solid var(--line); border-radius:13px; padding:12px 14px 12px 40px; position:relative; line-height:1.6}
+  ul.rec li::before{content:"✓"; position:absolute; left:13px; top:12px; width:22px; height:22px; border-radius:50%;
+    background:var(--accent-soft); color:var(--accent2); font-weight:800; font-size:13px;
+    display:flex; align-items:center; justify-content:center; border:1px solid #cfe6dd}
+  .small{font-size:13px; color:var(--muted); line-height:1.7; margin:14px 2px 0}
+  .hidden{display:none !important}
+  /* стартовый экран */
+  .hero{position:relative; overflow:hidden; padding:0}
+  .hero-top{padding:34px 32px 24px; position:relative;
+    background:linear-gradient(135deg,#0e7c6b 0%,#0a5f52 55%,#083f37 100%); color:#fff}
+  .hero-top::after{content:""; position:absolute; inset:0; pointer-events:none;
+    background:
+      radial-gradient(280px 180px at 88% 10%, rgba(255,255,255,.22), transparent 60%),
+      radial-gradient(200px 200px at 70% 110%, rgba(255,255,255,.12), transparent 60%)}
+  .eyebrow{display:inline-flex; align-items:center; gap:8px; position:relative; z-index:1;
+    background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.35);
+    border-radius:999px; padding:6px 13px; font-size:12.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase}
+  .eyebrow .dot{width:8px; height:8px; border-radius:50%; background:#7df0d4; box-shadow:0 0 0 4px rgba(125,240,212,.25)}
+  .hero-top h1{position:relative; z-index:1; margin:14px 0 0; color:#fff; font-size:clamp(26px,4vw,33px)}
+  .hero-body{padding:24px 32px 32px}
+  .hero-body .lead{margin:0 0 18px}
+  .features{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:0 0 22px}
+  .feat{display:flex; gap:10px; align-items:flex-start; background:#f2f7f5; border:1px solid #d9e7e1;
+    border-radius:14px; padding:12px}
+  .feat-ico{flex:0 0 auto; width:34px; height:34px; border-radius:11px; background:#fff;
+    border:1px solid #d9e7e1; display:flex; align-items:center; justify-content:center; color:var(--accent2)}
+  .feat-ico svg{width:19px; height:19px}
+  .feat b{display:block; font-size:13.5px; line-height:1.3}
+  .feat span{font-size:12.5px; color:var(--muted); line-height:1.4}
+  .btn-big{font-size:17px; padding:17px 22px; border-radius:15px}
+  .hero-note{margin:12px 2px 0; font-size:12.5px; color:var(--muted); line-height:1.6; text-align:center}
+  @media (max-width:560px){
+    .hero-top{padding:26px 20px 20px}
+    .hero-body{padding:20px 18px 24px}
+    .features{grid-template-columns:1fr}
+  }
+  @media (max-width:560px){
+    .wrap{padding:18px 10px 48px}
+    .card{padding:24px 18px; border-radius:18px}
+    .nav{flex-direction:column}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- Экран 1: вводный -->
+  <div id="screen-intro" class="card hero">
+    <div class="hero-top">
+      <div class="eyebrow"><span class="dot"></span>Онлайн-калькулятор</div>
+      <h1>Достаточно ли йода в вашем питании?</h1>
+    </div>
+    <div class="hero-body">
+      <p class="lead">Йод необходим для образования гормонов щитовидной железы. Его недостаточное поступление может способствовать развитию зоба и нарушению функции щитовидной железы. Особенно важно достаточное поступление йода детям, беременным и кормящим женщинам. Ответьте на несколько коротких вопросов и узнайте, на какие меры профилактики стоит обратить внимание.</p>
+      <div class="features">
+        <div class="feat">
+          <div class="feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+          <div><b>2–3 минуты</b><span>Время: около 2–3 минут</span></div>
+        </div>
+        <div class="feat">
+          <div class="feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1.4" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.4" fill="currentColor" stroke="none"/></svg></div>
+          <div><b>10–11 вопросов</b><span>короткая анкета о питании</span></div>
+        </div>
+        <div class="feat">
+          <div class="feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+          <div><b>Рекомендации</b><span>что улучшить в профилактике</span></div>
+        </div>
+      </div>
+      <button class="btn btn-big" id="btn-start">Оценить профилактику йододефицита</button>
+    </div>
+  </div>
+
+  <!-- Экран 2: анкета -->
+  <div id="screen-form" class="card hidden">
+    <div class="form-head"><h2>Анкета</h2></div>
+    <div class="progress"><div id="progress"></div></div>
+    <p class="small" style="margin:0 0 14px">Отвечайте для человека, для которого проводится оценка. Все показанные вопросы обязательны.</p>
+    <div id="questions"></div>
+    <div class="err" id="form-err">Ответьте на все показанные вопросы.</div>
+    <div class="nav">
+      <button class="btn btn-ghost" id="btn-back-intro">Назад</button>
+      <button class="btn" id="btn-calc">Показать результат</button>
+    </div>
+  </div>
+
+  <!-- Экран 3: результат -->
+  <div id="screen-result" class="card hidden">
+    <div id="result-cat" class="result-cat low"><h2 id="cat-title"></h2><div id="cat-text"></div></div>
+    <div class="block"><h4>Регион</h4><div id="region-text"></div></div>
+    <div class="block"><h4>Что рекомендуется сделать</h4><ul class="rec" id="rec-list"></ul></div>
+    <p class="small">Оценка основана на ответах анкеты, не измеряет поступление йода в микрограммах и не является диагностикой дефицита йода или прогнозом индивидуального риска заболеваний. Границы 0–1 / 2–3 / 4–6 экспертные и не валидированы клинически.</p>
+    <div class="nav">
+      <button class="btn" id="btn-retry">Пройти ещё раз</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+"use strict";
+// ---------- Справочник регионов (тексты из Регионы.txt, дословно) ----------
+const DEFAULT_MSG = "По данным международных исследований, в России сохраняется проблема недостаточной йодной обеспеченности населения, при этом ситуация различается между регионами. Достоверных данных для оценки йодной обеспеченности именно вашего региона недостаточно. Регулярная профилактика йододефицитных заболеваний остаётся актуальной.";
+const SPECIAL_MSG = {
+  "RU-001": "Региональное исследование 2024 года выявило йодный дефицит лёгкой степени. Регулярная профилактика йододефицитных заболеваний остаётся актуальной.",
+  "RU-008": "По результатам исследования 2021 года в Брянской области выявлен йодный дефицит лёгкой степени. Регулярная профилактика йододефицитных заболеваний остаётся актуальной.",
+  "RU-056": "По результатам исследования 2020 года в Республике Крым выявлен йодный дефицит лёгкой степени. Регулярная профилактика йододефицитных заболеваний остаётся актуальной.",
+  "RU-062": "По результатам исследования 2020 года в Республике Тыва установлена адекватная йодная обеспеченность. Регулярная профилактика йододефицитных заболеваний остаётся актуальной.",
+  "RU-077": "По результатам исследования 2023 года в Тульской области выявлен йодный дефицит лёгкой степени. Регулярная профилактика йододефицитных заболеваний остаётся актуальной.",
+  "RU-085": "По результатам исследования 2022 года в Чеченской Республике в целом выявлен йодный дефицит лёгкой степени. Регулярная профилактика йододефицитных заболеваний остаётся актуальной.",
+  "OUTSIDE": "Региональные исследования России не позволяют оценить йодную обеспеченность по месту вашего проживания. Рекомендации по профилактике следует соотносить с данными и клиническими рекомендациями страны проживания."
+};
+// id + название (названия дословно из файла)
+const ALL_REGIONS = [
+  ["RU-001","Воронежская область"],["RU-002","Москва"],["RU-003","Алтайский край"],
+  ["RU-004","Амурская область"],["RU-005","Архангельская область"],["RU-006","Астраханская область"],
+  ["RU-007","Белгородская область"],["RU-008","Брянская область"],["RU-009","Владимирская область"],
+  ["RU-010","Волгоградская область"],["RU-011","Вологодская область"],["RU-012","Донецкая Народная Республика"],
+  ["RU-013","Еврейская автономная область"],["RU-014","Забайкальский край"],["RU-015","Запорожская область"],
+  ["RU-016","Ивановская область"],["RU-017","Иркутская область"],["RU-018","Кабардино-Балкарская Республика"],
+  ["RU-019","Калининградская область"],["RU-020","Калужская область"],["RU-021","Камчатский край"],
+  ["RU-022","Карачаево-Черкесская Республика"],["RU-023","Кемеровская область — Кузбасс"],["RU-024","Кировская область"],
+  ["RU-025","Костромская область"],["RU-026","Краснодарский край"],["RU-027","Красноярский край"],
+  ["RU-028","Курганская область"],["RU-029","Курская область"],["RU-030","Ленинградская область"],
+  ["RU-031","Липецкая область"],["RU-032","Луганская Народная Республика"],["RU-033","Магаданская область"],
+  ["RU-034","Московская область"],["RU-035","Мурманская область"],["RU-036","Ненецкий автономный округ"],
+  ["RU-037","Нижегородская область"],["RU-038","Новгородская область"],["RU-039","Новосибирская область"],
+  ["RU-040","Омская область"],["RU-041","Оренбургская область"],["RU-042","Орловская область"],
+  ["RU-043","Пензенская область"],["RU-044","Пермский край"],["RU-045","Приморский край"],
+  ["RU-046","Псковская область"],["RU-047","Республика Адыгея"],["RU-048","Республика Алтай"],
+  ["RU-049","Республика Башкортостан"],["RU-050","Республика Бурятия"],["RU-051","Республика Дагестан"],
+  ["RU-052","Республика Ингушетия"],["RU-053","Республика Калмыкия"],["RU-054","Республика Карелия"],
+  ["RU-055","Республика Коми"],["RU-056","Республика Крым"],["RU-057","Республика Марий Эл"],
+  ["RU-058","Республика Мордовия"],["RU-059","Республика Саха (Якутия)"],["RU-060","Республика Северная Осетия — Алания"],
+  ["RU-061","Республика Татарстан"],["RU-062","Республика Тыва"],["RU-063","Республика Хакасия"],
+  ["RU-064","Ростовская область"],["RU-065","Рязанская область"],["RU-066","Самарская область"],
+  ["RU-067","Санкт-Петербург"],["RU-068","Саратовская область"],["RU-069","Сахалинская область"],
+  ["RU-070","Свердловская область"],["RU-071","Севастополь"],["RU-072","Смоленская область"],
+  ["RU-073","Ставропольский край"],["RU-074","Тамбовская область"],["RU-075","Тверская область"],
+  ["RU-076","Томская область"],["RU-077","Тульская область"],["RU-078","Тюменская область"],
+  ["RU-079","Удмуртская Республика"],["RU-080","Ульяновская область"],["RU-081","Хабаровский край"],
+  ["RU-082","Ханты-Мансийский автономный округ — Югра"],["RU-083","Херсонская область"],["RU-084","Челябинская область"],
+  ["RU-085","Чеченская Республика"],["RU-086","Чувашская Республика"],["RU-087","Чукотский автономный округ"],
+  ["RU-088","Ямало-Ненецкий автономный округ"],["RU-089","Ярославская область"],
+  ["OUTSIDE","Проживаю за пределами России"]
+];
+function regionMsg(id){ return SPECIAL_MSG[id] || DEFAULT_MSG; }
+// Порядок по ТЗ п.6: 1) Воронежская, 2) Москва, 3) Московская область, 4) за пределами России, затем остальные по алфавиту
+const ORDERED_REGIONS = (() => {
+  const byId = Object.fromEntries(ALL_REGIONS);
+  const top = ["RU-001","RU-002","RU-034","OUTSIDE"];
+  const rest = ALL_REGIONS.filter(([id]) => !top.includes(id)).sort((a,b) => a[1].localeCompare(b[1], "ru"));
+  return [...top.map(id => [id, byId[id]]), ...rest];
+})();
+
+// ---------- Анкета (точные тексты из ТЗ) ----------
+const Q = [
+  { n:1, text:"В каком регионе России вы проживаете?", type:"region" },
+  { n:2, text:"Укажите возраст", opts:["3–5 лет","6–12 лет","13–17 лет","18 лет и старше"] },
+  { n:3, text:"Укажите пол", opts:["Женский","Мужской"] },
+  { n:4, text:"Беременность или грудное вскармливание", opts:["Беременность","Грудное вскармливание","Беременность и грудное вскармливание","Ни то ни другое"], cond:(a)=> a[2]==="18 лет и старше" && a[3]==="Женский" },
+  { n:5, text:"Как часто дома используют йодированную соль?", opts:["Всегда или почти всегда","Иногда","Редко или никогда","Не знаю"] },
+  { n:6, text:"Как часто в рационе присутствуют молоко и молочные продукты?", opts:["Ежедневно","4–6 дней в неделю","1–3 дня в неделю","Реже или никогда"] },
+  { n:7, text:"Как часто в рационе присутствуют морская рыба и морепродукты?", opts:["3 раза в неделю и чаще","1–2 раза в неделю","Реже или никогда"] },
+  { n:8, text:"Сколько яиц обычно употребляется за неделю?", opts:["4 и более","1–3","Реже одного или никогда"] },
+  { n:9, text:"Используются ли продукты, специально обогащённые йодом?", opts:["Регулярно","Иногда","Нет","Не знаю"] },
+  { n:10, text:"Как часто в рационе присутствуют морская капуста или другие морские водоросли?", opts:["Раз в неделю и чаще","Реже раза в неделю","Не употребляются","Не знаю"] },
+  { n:11, text:"Принимаются ли препараты или добавки, содержащие йод?", opts:["Ежедневно","Нерегулярно","Нет","Не знаю"] },
+];
+const state = {}; // n -> value
+
+// ---------- Построение формы ----------
+const qDiv = document.getElementById("questions");
+function visibleQs(){ return Q.filter(q => !q.cond || q.cond(state)); }
+
+function render(){
+  qDiv.innerHTML = "";
+  visibleQs().forEach(q => {
+    const box = document.createElement("div");
+    box.className = "q"; box.id = "q"+q.n;
+    let inner = `<h3><span class="n">${q.n}</span>${q.text}</h3>`;
+    if (q.type === "region") {
+      const selId = state[1];
+      const selName = selId ? (ORDERED_REGIONS.find(([id]) => id===selId) || ["","— выберите —"])[1] : "";
+      inner += `<div class="dd" id="region-dd">
+        <button type="button" class="dd-btn ${selId?"":""} " id="region-btn" aria-haspopup="listbox" aria-expanded="false">
+          <span id="region-label" class="${selId?"":"ph"}">${selId ? selName : "— выберите —"}</span>
+          <span class="arrow">▾</span>
+        </button>
+        <div class="dd-panel hidden" id="region-panel" role="listbox">
+          <input class="search" id="region-search" placeholder="Поиск по названию…" autocomplete="off">
+          <div class="dd-list" id="region-list">` +
+            ORDERED_REGIONS.map(([id,name]) => `<button type="button" class="dd-opt ${selId===id?"sel":""}" data-id="${id}">${name}</button>`).join("") +
+          `</div><div class="dd-empty" id="region-empty">Ничего не найдено</div>
+        </div>
+      </div>`;
+    } else {
+      inner += q.opts.map(o =>
+        `<label class="opt ${state[q.n]===o?"checked":""}"><input type="radio" name="q${q.n}" value="${o}" ${state[q.n]===o?"checked":""}>${o}</label>`
+      ).join("");
+    }
+    box.innerHTML = inner;
+    qDiv.appendChild(box);
+  });
+  bind(); updateProgress();
+}
+function bind(){
+  qDiv.querySelectorAll('input[type=radio]').forEach(r => {
+    r.addEventListener("change", e => {
+      const n = parseInt(e.target.name.replace("q",""),10);
+      state[n] = e.target.value;
+      if (n===2 || n===3) { if(!visibleQs().some(q=>q.n===4)) delete state[4]; }
+      document.getElementById("form-err").style.display = "none";
+      render();
+    });
+  });
+  const btn = document.getElementById("region-btn");
+  const panel = document.getElementById("region-panel");
+  const search = document.getElementById("region-search");
+  const list = document.getElementById("region-list");
+  const empty = document.getElementById("region-empty");
+  const label = document.getElementById("region-label");
+  if (btn && panel) {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isOpen = !panel.classList.contains("hidden");
+      panel.classList.toggle("hidden", isOpen);
+      btn.classList.toggle("open", !isOpen);
+      btn.setAttribute("aria-expanded", String(!isOpen));
+      if (!isOpen && search) { search.value=""; filterRegs(""); setTimeout(()=>search.focus(),0); }
+    });
+    panel.addEventListener("click", (e) => e.stopPropagation());
+    const filterRegs = (s) => {
+      s = (s||"").toLowerCase().trim();
+      let vis = 0;
+      list.querySelectorAll(".dd-opt").forEach(o => {
+        const hit = !s || o.textContent.toLowerCase().includes(s);
+        o.style.display = hit ? "" : "none";
+        if (hit) vis++;
+      });
+      if (empty) empty.style.display = vis ? "none" : "block";
+    };
+    if (search) search.addEventListener("input", () => filterRegs(search.value));
+    list.querySelectorAll(".dd-opt").forEach(o => {
+      o.addEventListener("click", () => {
+        state[1] = o.dataset.id;
+        if (label) { label.textContent = o.textContent; label.classList.remove("ph"); }
+        list.querySelectorAll(".dd-opt").forEach(x => x.classList.toggle("sel", x===o));
+        panel.classList.add("hidden"); btn.classList.remove("open"); btn.setAttribute("aria-expanded","false");
+        document.getElementById("form-err").style.display="none";
+        updateProgress();
+      });
+    });
+    document.onclick = (e) => {
+      const dd = document.getElementById("region-dd");
+      if (dd && !dd.contains(e.target) && panel && !panel.classList.contains("hidden")) {
+        panel.classList.add("hidden"); btn.classList.remove("open"); btn.setAttribute("aria-expanded","false");
+      }
+    };
+  }
+}
+function updateProgress(){
+  const vis = visibleQs();
+  const done = vis.filter(q => state[q.n]).length;
+  document.getElementById("progress").style.width = (done/vis.length*100)+"%";
+}
+
+// ---------- Расчёт (ТЗ п.3) ----------
+function saltPoints(v){ return {"Всегда или почти всегда":0,"Иногда":1,"Редко или никогда":3,"Не знаю":2}[v]; }
+function foodCount(a){
+  let c=0;
+  if (a[6]==="Ежедневно"||a[6]==="4–6 дней в неделю") c++;
+  if (a[7]==="3 раза в неделю и чаще"||a[7]==="1–2 раза в неделю") c++;
+  if (a[8]==="4 и более") c++;
+  if (a[9]==="Регулярно") c++;
+  return c;
+}
+function foodPoints(c){ return (c>=2&&c<=4)?0 : (c===1?1:3); }
+function category(total){
+  if (total<=1) return { cls:"low",
+    title:"Основные меры профилактики используются регулярно. Риск развития йодного дефицита низкий",
+    text:"По вашим ответам йодированная соль и дополнительные пищевые источники йода используются относительно регулярно. Это полезные характеристики профилактики, однако анкета не определяет фактическое количество поступающего йода." };
+  if (total<=3) return { cls:"mid",
+    title:"Есть возможности улучшить профилактику. Средний риск развития йодного дефицита",
+    text:"По вашим ответам некоторые меры профилактики используются нерегулярно. Обратите внимание на йодированную соль и доступные пищевые источники йода." };
+  return { cls:"high",
+    title:"Профилактике следует уделить особое внимание. Высокий риск развития йодного дефицита",
+    text:"По вашим ответам основные пищевые меры профилактики используются редко или их применение неизвестно. Рекомендации ниже помогут определить, что можно улучшить." };
+}
+// ---------- Рекомендации (ТЗ п.5, макс. 3) ----------
+function recommendations(a, count){
+  const recs = [];
+  const preg = a[4]==="Беременность"||a[4]==="Грудное вскармливание"||a[4]==="Беременность и грудное вскармливание";
+  if (preg) recs.push({p:1, t:"При беременности и грудном вскармливании рекомендована индивидуальная профилактика препаратами йода. Уточните у врача подходящий препарат и дозировку с учётом противопоказаний и уже принимаемых средств."});
+  if (a[5]==="Иногда"||a[5]==="Редко или никогда") recs.push({p:2, t:"Используйте йодированную соль вместо обычной, не увеличивая общее количество соли в пище."});
+  else if (a[5]==="Не знаю") recs.push({p:2, t:"Проверьте упаковку используемой соли: на ней должно быть указано, что соль йодированная."});
+  if (count===0||count===1) recs.push({p:3, t:"Постарайтесь разнообразить рацион доступными пищевыми источниками йода: молочными продуктами, морской рыбой, яйцами или продуктами с подтверждённым обогащением йодом."});
+  if (a[11]==="Ежедневно"||a[11]==="Нерегулярно"||a[11]==="Не знаю") recs.push({p:4, t:"Проверьте состав и дозировку принимаемого средства. Если дозировка неизвестна, уточните её у врача; не сочетайте несколько йодсодержащих препаратов без назначения."});
+  if (["3–5 лет","6–12 лет","13–17 лет"].includes(a[2])) recs.push({p:5, t:"Для детей важно достаточное поступление йода в период роста. При выборе средств профилактики учитывайте возраст и рекомендации педиатра."});
+  if (a[10]==="Раз в неделю и чаще") recs.push({p:6, t:"Не используйте морские водоросли как единственный источник йода: содержание йода в них существенно различается и может быть избыточным."});
+  recs.sort((x,y)=>x.p-y.p);
+  return recs.slice(0,3).map(r=>r.t);
+}
+
+// ---------- Навигация ----------
+const sI=document.getElementById("screen-intro"), sF=document.getElementById("screen-form"), sR=document.getElementById("screen-result");
+document.getElementById("btn-start").onclick = () => { sI.classList.add("hidden"); sF.classList.remove("hidden"); render(); };
+document.getElementById("btn-back-intro").onclick = () => { sF.classList.add("hidden"); sI.classList.remove("hidden"); };
+document.getElementById("btn-calc").onclick = () => {
+  const vis = visibleQs();
+  const missing = vis.some(q => !state[q.n]);
+  if (missing) { document.getElementById("form-err").style.display="block"; return; }
+  const sp = saltPoints(state[5]), cnt = foodCount(state), fp = foodPoints(cnt), total = sp+fp;
+  const cat = category(total);
+  document.getElementById("cat-title").textContent = cat.title;
+  document.getElementById("cat-text").textContent = cat.text;
+  const box = document.getElementById("result-cat"); box.className = "result-cat "+cat.cls;
+  document.getElementById("region-text").textContent = regionMsg(state[1]);
+  const recs = recommendations(state, cnt);
+  document.getElementById("rec-list").innerHTML = recs.length ? recs.map(t=>`<li>${t}</li>`).join("") : "<li>Дополнительных рекомендаций нет — продолжайте текущие меры.</li>";
+  sF.classList.add("hidden"); sR.classList.remove("hidden"); window.scrollTo(0,0);
+};
+document.getElementById("btn-retry").onclick = () => {
+  Object.keys(state).forEach(k=>delete state[k]);
+  sR.classList.add("hidden"); sF.classList.remove("hidden"); render(); window.scrollTo(0,0);
+};
+
+// ---------- Самопроверка по ТЗ п.8 (в консоли) ----------
+(function selfTest(){
+  const cases = [ // [соль, источников, ожид. сумма, ожид. класс]
+    ["Всегда или почти всегда",0,3,"mid"],["Всегда или почти всегда",1,1,"low"],
+    ["Всегда или почти всегда",2,0,"low"],["Всегда или почти всегда",3,0,"low"],["Всегда или почти всегда",4,0,"low"],
+    ["Иногда",0,4,"high"],["Иногда",1,2,"mid"],["Иногда",2,1,"low"],["Иногда",3,1,"low"],["Иногда",4,1,"low"],
+    ["Не знаю",0,5,"high"],["Не знаю",1,3,"mid"],["Не знаю",2,2,"mid"],["Не знаю",3,2,"mid"],["Не знаю",4,2,"mid"],
+    ["Редко или никогда",0,6,"high"],["Редко или никогда",1,4,"high"],["Редко или никогда",2,3,"mid"],
+    ["Редко или никогда",3,3,"mid"],["Редко или никогда",4,3,"mid"]];
+  cases.forEach(([s,c,exp,cls]) => {
+    const t = saltPoints(s)+foodPoints(c);
+    console.assert(t===exp && category(t).cls===cls, "FAIL", s, c, t);
+  });
+})();
+</script>
+</body>
+</html>
